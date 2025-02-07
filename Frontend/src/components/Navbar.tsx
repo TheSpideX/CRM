@@ -1,3 +1,5 @@
+// Update imports at the top of the file
+import { Menu } from "@heroui/react"; // Changed from @headlessui/react
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState } from "react";
