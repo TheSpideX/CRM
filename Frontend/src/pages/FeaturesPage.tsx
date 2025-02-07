@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  AnimatePresence,
+} from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import Navbar from "../components/Navbar";
 import {
@@ -230,7 +236,7 @@ const FeatureCard: React.FC<{
             <motion.div
               variants={iconVariants}
               className={`p-3 rounded-xl bg-${feature.accentColor}-500/10 backdrop-blur-md shadow-xl
-                hover:bg-${feature.accentColor}-500/20 transition-colors duration-300`}
+              hover:bg-${feature.accentColor}-500/20 transition-colors duration-300`}
             >
               {feature.icon}
             </motion.div>
@@ -284,12 +290,12 @@ const FeatureCard: React.FC<{
                 key={idx}
                 variants={highlightVariants}
                 className={`px-3 py-1 rounded-full text-xs md:text-sm font-medium
-                  bg-${feature.accentColor}-500/10 
-                  text-${feature.accentColor}-200
-                  border border-${feature.accentColor}-500/20
-                  hover:border-${feature.accentColor}-500/30
-                  transition-all duration-300
-                  whitespace-nowrap`}
+                bg-${feature.accentColor}-500/10
+                text-${feature.accentColor}-200
+                border border-${feature.accentColor}-500/20
+                hover:border-${feature.accentColor}-500/30
+                transition-all duration-300
+                whitespace-nowrap`}
               >
                 {highlight}
               </motion.span>
@@ -387,6 +393,232 @@ const BackgroundAnimation: React.FC = () => {
   );
 };
 
+const FAQItem: React.FC<{
+  faq: { question: string; answer: string };
+  index: number;
+}> = ({ faq, index }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <motion.div
+      key={index}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="bg-white/[0.03] border border-white/[0.05] rounded-2xl p-8 backdrop-blur-xl" // Increased padding
+      onHoverStart={() => setIsOpen(true)}
+      onHoverEnd={() => setIsOpen(false)}
+    >
+      <div className="space-y-4">
+        <div className="flex justify-between items-start gap-4">
+          {" "}
+          {/* Added gap */}
+          <h3 className="text-xl font-semibold text-gray-200 flex-1">
+            {" "}
+            {/* Added flex-1 */}
+            {faq.question}
+          </h3>
+          <motion.div
+            animate={{ rotate: isOpen ? 45 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="text-gray-400 flex-shrink-0" // Added flex-shrink-0
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </motion.div>
+        </div>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <p className="text-gray-400 leading-relaxed pt-2">{faq.answer}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+};
+
+const FAQSection: React.FC = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const faqs = [
+    {
+      question: "How does the AI-powered ticket routing work?",
+      answer:
+        "Our smart ticket management system uses machine learning to analyze ticket content, urgency, and team expertise. It automatically routes tickets to the most qualified team members while considering current workload distribution for optimal efficiency.",
+    },
+    {
+      question: "What kind of analytics and reporting features are available?",
+      answer:
+        "The platform provides comprehensive analytics including real-time performance metrics, team productivity insights, trend analysis, and custom report building capabilities. You can track KPIs, monitor SLA compliance, and export data for further analysis.",
+    },
+    {
+      question: "How does the platform ensure data security?",
+      answer:
+        "We implement bank-grade security measures including end-to-end encryption, two-factor authentication, role-based access control, and detailed audit logging. Our system complies with industry standards and maintains 99.99% uptime.",
+    },
+    {
+      question: "Can the system integrate with our existing tools?",
+      answer:
+        "Yes, our platform offers seamless integration with popular tools and services. The system supports multi-region deployment, CDN integration, and can sync with calendar applications for scheduling and deadline management.",
+    },
+    {
+      question: "How does the SLA tracking system work?",
+      answer:
+        "The SLA management system automatically tracks response and resolution times, sends alerts at 75% expiry, and handles priority escalations. Team leads receive notifications for potential breaches, and the system provides real-time visibility into SLA compliance.",
+    },
+    {
+      question: "Is mobile access available?",
+      answer:
+        "Yes, we offer native mobile apps for both iOS and Android with features like push notifications, offline support, biometric authentication, and real-time synchronization. The mobile interface is optimized for on-the-go ticket management.",
+    },
+    {
+      question: "How do you handle team collaboration?",
+      answer:
+        "Our platform facilitates seamless collaboration through built-in chat, file sharing, and real-time updates. Teams can work together on tickets, share knowledge, and communicate effectively across departments.",
+    },
+    {
+      question: "What kind of customization options are available?",
+      answer:
+        "The system offers extensive customization including custom ticket statuses, routing rules, SLA configurations, and workflow automation. Teams can also personalize their dashboards and reporting views.",
+    },
+  ];
+
+  return (
+    <section className="py-16">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <motion.div
+            className="relative inline-block cursor-pointer group w-full max-w-4xl" // Increased max-width
+            onClick={() => setIsExpanded(!isExpanded)}
+            onHoverStart={() => setIsHovered(true)}
+            onHoverEnd={() => setIsHovered(false)}
+          >
+            {/* Animated background gradient */}
+            <motion.div
+              className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500/20 via-secondary-500/20 to-primary-500/20 blur-xl"
+              animate={{
+                scale: isHovered ? 1.1 : 1,
+                opacity: isHovered ? 0.8 : 0.5,
+              }}
+              transition={{ duration: 0.3 }}
+            />
+
+            {/* Content container */}
+            <motion.div
+              className="relative px-8 py-6 rounded-2xl border border-white/10 backdrop-blur-sm"
+              animate={{
+                scale: isHovered ? 1.02 : 1,
+                backgroundColor: isHovered
+                  ? "rgba(255,255,255,0.03)"
+                  : "rgba(255,255,255,0.01)",
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="flex items-center justify-center gap-4">
+                <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-secondary-400">
+                  Frequently Asked Questions
+                </h2>
+                <motion.div
+                  animate={{
+                    rotate: isExpanded ? 180 : 0,
+                    scale: isHovered ? 1.1 : 1,
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="text-primary-400"
+                >
+                  <svg
+                    className="w-8 h-8"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </motion.div>
+              </div>
+
+              {/* Interactive hint */}
+              <motion.p
+                className="text-sm text-gray-400 mt-2"
+                animate={{
+                  opacity: isHovered ? 1 : 0.7,
+                }}
+              >
+                {isExpanded ? "Click to collapse" : "Click to explore our FAQ"}
+              </motion.p>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* FAQ Items Container */}
+        <AnimatePresence mode="sync">
+          {" "}
+          {/* Changed from "wait" to "sync" */}
+          {isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{
+                duration: 0.2,
+                exit: { duration: 0.1 }, // Faster exit animation
+                opacity: { duration: 0.2 },
+              }}
+              className="max-w-5xl mx-auto space-y-6 overflow-hidden" // Added overflow-hidden
+            >
+              {faqs.map((faq, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.2,
+                    delay: index * 0.05, // Reduced delay
+                    exit: { delay: 0 }, // No delay on exit
+                  }}
+                >
+                  <FAQItem faq={faq} index={index} />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
+
 const FeaturesPage: React.FC = () => {
   const { scrollYProgress } = useScroll();
   const y = useSpring(useTransform(scrollYProgress, [0, 1], [0, 300]));
@@ -472,52 +704,66 @@ const FeaturesPage: React.FC = () => {
           </div>
         </section>
 
-        {/* CTA Section with improved design */}
+        {/* CTA Section with transparent design */}
         <section className="py-20 relative">
           <div className="container mx-auto px-4">
             <div className="relative rounded-3xl overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-secondary-500/20 backdrop-blur-xl" />
+              {/* Remove the solid background and add subtle gradient overlay */}
+              <div className="absolute inset-0">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-secondary-500/5 backdrop-blur-sm" />
+                <div className="absolute inset-0 bg-white/[0.02]" />
+              </div>
+
+              {/* Decorative elements */}
+              <div className="absolute -left-20 -top-20 w-60 h-60 bg-primary-500/10 rounded-full blur-3xl" />
+              <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-secondary-500/10 rounded-full blur-3xl" />
+
+              {/* Content */}
               <div className="relative z-10 px-8 py-16 text-center">
-                <h2 className="text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                  Ready to Transform Your Customer Support?
-                </h2>
-                <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                  Start your free trial today. No credit card required.
-                </p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-white text-black rounded-xl font-semibold 
-                    shadow-lg transition-all duration-300 hover:shadow-2xl
-                    hover:bg-gray-100"
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="max-w-3xl mx-auto"
                 >
-                  Get Started Free
-                </motion.button>
+                  <h2 className="text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                    Ready to Transform Your Customer Support?
+                  </h2>
+                  <p className="text-xl text-gray-300/80 mb-8">
+                    Start your free trial today. No credit card required.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-8 py-4 rounded-xl font-semibold
+                      bg-white/[0.03] backdrop-blur-sm
+                      border border-white/10 hover:border-white/20
+                      text-white shadow-lg transition-all duration-300
+                      hover:bg-white/[0.05] hover:shadow-2xl"
+                    >
+                      Get Started Free
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-8 py-4 rounded-xl font-semibold
+                      bg-primary-500/10 backdrop-blur-sm
+                      border border-primary-500/20 hover:border-primary-500/30
+                      text-primary-300 shadow-lg transition-all duration-300
+                      hover:bg-primary-500/20 hover:shadow-2xl"
+                    >
+                      Schedule Demo
+                    </motion.button>
+                  </div>
+                </motion.div>
               </div>
             </div>
           </div>
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-4xl font-bold mb-6">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-xl text-gray-400">
-                Got questions? We've got answers.
-              </p>
-            </motion.div>
-
-            <div className="max-w-3xl mx-auto">{/* FAQ items here */}</div>
-          </div>
-        </section>
+        <FAQSection />
 
         {/* Footer with improved design */}
         <footer className="py-20 border-t border-white/10">

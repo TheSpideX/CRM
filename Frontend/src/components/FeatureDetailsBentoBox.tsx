@@ -53,9 +53,9 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className={`
-        group relative overflow-hidden rounded-3xl
-        ${getGridClass(feature.size)}
-      `}
+       group relative overflow-hidden rounded-3xl
+       ${getGridClass(feature.size)}
+     `}
     >
       {/* Base layer with backdrop blur */}
       <div className="absolute inset-0 backdrop-blur-xl bg-white/[0.03] border border-white/[0.05]" />
@@ -75,11 +75,11 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({
           <motion.div
             variants={iconVariants}
             className={`
-              p-3 rounded-xl
-              bg-${feature.accentColor}-500/10
-              group-hover:bg-${feature.accentColor}-500/20
-              backdrop-blur-md transition-colors duration-300
-            `}
+             p-3 rounded-xl
+             bg-${feature.accentColor}-500/10
+             group-hover:bg-${feature.accentColor}-500/20
+             backdrop-blur-md transition-colors duration-300
+           `}
           >
             {feature.icon}
           </motion.div>
@@ -135,14 +135,14 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.1 }}
               className={`
-                px-3 py-1 rounded-full text-sm font-medium
-                bg-${feature.accentColor}-500/10
-                text-${feature.accentColor}-200
-                border border-${feature.accentColor}-500/20
-                group-hover:border-${feature.accentColor}-500/30
-                group-hover:bg-${feature.accentColor}-500/20
-                transition-all duration-300
-              `}
+               px-3 py-1 rounded-full text-sm font-medium
+               bg-${feature.accentColor}-500/10
+               text-${feature.accentColor}-200
+               border border-${feature.accentColor}-500/20
+               group-hover:border-${feature.accentColor}-500/30
+               group-hover:bg-${feature.accentColor}-500/20
+               transition-all duration-300
+             `}
             >
               {highlight}
             </motion.span>
@@ -171,10 +171,10 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({
           scale: isHovered ? 1 : 0.8,
         }}
         className={`
-          absolute top-0 right-0 w-24 h-24
-          bg-gradient-to-br from-${feature.accentColor}-500/30 to-transparent
-          rounded-bl-full
-        `}
+         absolute top-0 right-0 w-24 h-24
+         bg-gradient-to-br from-${feature.accentColor}-500/30 to-transparent
+         rounded-bl-full
+       `}
         style={{ transition: "all 0.3s ease-out" }}
       />
     </motion.div>
