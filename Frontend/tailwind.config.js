@@ -47,6 +47,8 @@ export default {
         float: "float 6s ease-in-out infinite",
         "pulse-slow": "pulse 3s ease-in-out infinite",
         "gradient-shift": "gradient-shift 15s ease infinite",
+        "slow-spin": "slow-spin 25s linear infinite",
+        "slow-spin-reverse": "slow-spin-reverse 30s linear infinite",
       },
       keyframes: {
         "parallax-scroll": {
@@ -60,6 +62,14 @@ export default {
         "gradient-shift": {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
+        },
+        "slow-spin": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "slow-spin-reverse": {
+          "0%": { transform: "rotate(360deg)" },
+          "100%": { transform: "rotate(0deg)" },
         },
       },
       transitionTimingFunction: {
@@ -78,8 +88,9 @@ export default {
   plugins: [],
   safelist: [
     {
-      pattern: /(bg|text|border)-(violet|cyan|emerald|amber|rose|indigo)-(50|200|400|500)/,
-      variants: ['hover'],
+      pattern:
+        /(bg|text|border)-(violet|cyan|emerald|amber|rose|indigo)-(50|200|400|500)/,
+      variants: ["hover"],
     },
   ],
 };

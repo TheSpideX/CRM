@@ -1,4 +1,10 @@
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  AnimatePresence,
+} from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useState, useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
@@ -14,19 +20,28 @@ import { ParallaxText } from "../components/ParallaxText";
 import { GradientBlob } from "../components/GradientBlob";
 import BentoBox from "../components/BentoBox";
 
-// Modern IconSet component to replace IconPlaceholder
+// Enhanced FeatureIcon with smoother animations
 const FeatureIcon: React.FC<{ variant: string }> = ({ variant }) => {
   const iconVariants = {
     lightning: (
-      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-        <path
+      <motion.svg
+        className="w-6 h-6"
+        viewBox="0 0 24 24"
+        fill="none"
+        whileHover={{ scale: 1.1 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        <motion.path
           d="M13 3L4 14h7l-2 7 9-11h-7l2-7z"
           className="stroke-current"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1 }}
         />
-      </svg>
+      </motion.svg>
     ),
     chart: (
       <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
@@ -64,27 +79,47 @@ const FeatureIcon: React.FC<{ variant: string }> = ({ variant }) => {
   };
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
+    <motion.div
+      className="relative w-full h-full flex items-center justify-center"
+      whileHover={{ scale: 1.05 }}
+      transition={{ type: "spring", stiffness: 400 }}
+    >
       {iconVariants[variant as keyof typeof iconVariants]}
-    </div>
+    </motion.div>
   );
 };
 
-// Card component
+// Enhanced Card with glass morphism and better hover effects
 const Card: React.FC<{
   variant?: string;
   className?: string;
   children: React.ReactNode;
   style?: React.CSSProperties;
 }> = ({ variant, className, children, style }) => (
-  <div
-    className={`rounded-xl ${className} ${
-      variant === "glass" ? "backdrop-blur-xl bg-background-900/50" : ""
-    }`}
+  <motion.div
+    className={`
+      rounded-xl 
+      ${className} 
+      ${
+        variant === "glass"
+          ? "backdrop-blur-xl bg-background-900/50 border border-white/10"
+          : ""
+      }
+      hover:border-white/20 
+      transition-all 
+      duration-300
+    `}
     style={style}
+    whileHover={{
+      y: -5,
+      transition: { type: "spring", stiffness: 300 },
+    }}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
   >
     {children}
-  </div>
+  </motion.div>
 );
 
 interface Feature {
@@ -168,15 +203,18 @@ const itemVariants = {
   },
 };
 
-// New subtle hover animation for cards
+// Enhanced feature card variants
 const cardVariants = {
   initial: {
     backgroundColor: "rgba(255, 255, 255, 0.02)",
+    scale: 1,
   },
   hover: {
     backgroundColor: "rgba(255, 255, 255, 0.05)",
+    scale: 1.02,
     transition: {
-      duration: 0.3,
+      duration: 0.2,
+      ease: "easeInOut",
     },
   },
 };
@@ -332,45 +370,236 @@ const legalLinks = [
   { label: "Security", href: "/security" },
 ];
 
-const LandingPage: React.FC = () => {
-  useEffect(() => {
-    console.log("LandingPage mounted"); // Debug log
-  }, []);
-
+const AnimatedBackground: React.FC = () => {
   const mousePosition = useMousePosition();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll();
-  const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 };
-
-  const opacity = useSpring(
-    useTransform(scrollYProgress, [0, 0.5], [1, 0]),
-    springConfig
-  );
+  const normalizedMouse = {
+    x: (mousePosition.x / window.innerWidth) * 2 - 1,
+    y: -(mousePosition.y / window.innerHeight) * 2 + 1,
+  };
 
   return (
-    <div className="min-h-screen bg-background-900 text-white relative overflow-hidden">
-      {/* Enhanced Background */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-background-900 via-background-800 to-background-900" />
-        <GradientBlob />
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20" />
-      </div>
+    <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 bg-gradient-to-br from-background-900 via-background-800 to-background-900" />
 
-      {/* Particles with adjusted opacity */}
-      <div className="fixed inset-0 z-0 opacity-60">
-        <Canvas
-          camera={{
-            position: [0, 0, 35],
-            fov: 75,
-            near: 0.1,
-            far: 1000,
-          }}
-        >
-          <Particles count={3000} mouse={mousePosition} />
+      {/* Particles canvas */}
+      <div className="absolute inset-0">
+        <Canvas camera={{ position: [0, 0, 1] }}>
+          <Particles mouse={normalizedMouse} />
         </Canvas>
       </div>
 
-      {/* Enhanced Navbar with Blur Effect */}
+      <motion.div
+        className="absolute inset-0"
+        animate={{
+          background: [
+            "radial-gradient(circle at 50% 50%, rgba(76, 29, 149, 0.1) 0%, transparent 50%)",
+            "radial-gradient(circle at 60% 40%, rgba(76, 29, 149, 0.1) 0%, transparent 50%)",
+            "radial-gradient(circle at 40% 60%, rgba(76, 29, 149, 0.1) 0%, transparent 50%)",
+          ],
+        }}
+        transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
+      />
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay" />
+    </div>
+  );
+};
+
+const HeroContent: React.FC = () => {
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div
+      style={{ y }}
+      className="relative z-10 max-w-7xl mx-auto px-4 pt-32 pb-20 sm:pt-40 sm:pb-24"
+    >
+      {/* Floating elements in background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            rotate: [0, 5, -5, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity }}
+          className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-primary-500/20 to-transparent rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, -5, 5, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity }}
+          className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-secondary-500/20 to-transparent rounded-full blur-3xl"
+        />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="text-center relative"
+      >
+        {/* Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mb-8 inline-block"
+        >
+          <span className="inline-flex items-center px-6 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm">
+            <span className="animate-pulse inline-block w-2 h-2 rounded-full bg-primary-500 mr-3" />
+            <span className="text-sm font-medium text-white/80">
+              New: AI-Powered Ticket Resolution 🚀
+            </span>
+          </span>
+        </motion.div>
+
+        {/* Main Heading */}
+        <motion.h1
+          className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-secondary-400 to-primary-400 animate-gradient-shift bg-[length:200%_auto]">
+            Next-Gen Support
+          </span>
+          <motion.span
+            className="inline-block ml-4"
+            animate={{ rotate: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            🌟
+          </motion.span>
+        </motion.h1>
+
+        {/* Description */}
+        <motion.p
+          className="text-xl md:text-2xl text-gray-300/90 max-w-3xl mx-auto leading-relaxed"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
+          Transform your customer experience with{" "}
+          <HighlightSpan color="primary">AI-powered automation</HighlightSpan>,{" "}
+          <HighlightSpan color="secondary">real-time analytics</HighlightSpan>,
+          and{" "}
+          <HighlightSpan color="primary">seamless collaboration</HighlightSpan>.
+        </motion.p>
+
+        {/* Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="flex justify-center gap-8 mt-12 mb-12"
+        >
+          {[
+            { label: "Faster Resolution", value: "85%", icon: "⚡" },
+            { label: "Customer Satisfaction", value: "98%", icon: "😊" },
+            { label: "Team Productivity", value: "3x", icon: "📈" },
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 + index * 0.1 }}
+              className="text-center"
+            >
+              <div className="text-3xl font-bold mb-2">
+                {stat.icon} {stat.value}
+              </div>
+              <div className="text-sm text-gray-400">{stat.label}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* CTA Buttons */}
+        <motion.div
+          className="mt-12 flex flex-col sm:flex-row justify-center gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+        >
+          <GlowingButton
+            primary
+            className="group relative px-8 py-4 text-lg transform hover:scale-105 transition-transform duration-200"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            Get Started Free
+            <motion.span
+              className="ml-2 inline-block"
+              animate={isHovered ? { x: [0, 4, 0] } : {}}
+              transition={{ repeat: Infinity, duration: 1 }}
+            >
+              →
+            </motion.span>
+          </GlowingButton>
+
+          <GlowingButton
+            secondary
+            className="group relative px-8 py-4 text-lg backdrop-blur-sm hover:bg-white/10 transition-colors duration-200"
+          >
+            Book a Demo
+            <motion.span
+              className="ml-2 inline-block"
+              animate={{ rotate: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              📅
+            </motion.span>
+          </GlowingButton>
+        </motion.div>
+
+        {/* Trust Badges */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-16 text-center"
+        >
+          <p className="text-sm text-gray-500 mb-4">
+            Trusted by leading companies worldwide
+          </p>
+          <div className="flex justify-center items-center gap-8 grayscale opacity-50">
+            {[
+              "microsoft.svg",
+              "google.svg",
+              "amazon.svg",
+              "meta.svg",
+              "apple.svg",
+            ].map((logo, i) => (
+              <motion.img
+                key={logo}
+                src={`/logos/${logo}`}
+                alt=""
+                className="h-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 + i * 0.1 }}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const LandingPage: React.FC = () => {
+  const { scrollYProgress } = useScroll();
+  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.2], [1, 0]), {
+    stiffness: 100,
+    damping: 30,
+  });
+
+  return (
+    <div className="min-h-screen bg-background-900 text-white relative overflow-hidden">
+      <AnimatedBackground />
+
+      {/* Enhanced Navbar */}
       <motion.div
         className="sticky top-0 z-50 border-b border-white/5"
         initial={{ y: -100 }}
@@ -381,121 +610,10 @@ const LandingPage: React.FC = () => {
         <Navbar />
       </motion.div>
 
-      <main className="relative z-10">
-        {/* Refined Hero Section */}
-        <motion.section
-          className="relative min-h-[90vh] flex items-center justify-center py-24"
-          style={{ opacity }}
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              className="text-center relative z-10"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              {/* Enhanced Gradient Text */}
-              <div className="relative">
-                <motion.div
-                  className="absolute -inset-x-20 -top-16 h-44 bg-gradient-to-r from-primary-500/20 via-secondary-500/20 to-primary-500/20 blur-3xl"
-                  animate={{
-                    opacity: [0.5, 0.8, 0.5],
-                    scale: [1, 1.1, 1],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                  }}
-                />
-                <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight">
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-secondary-400 to-primary-400">
-                    Next-Gen Support
-                  </span>
-                </h1>
-              </div>
-
-              {/* Enhanced Subtitle */}
-              <motion.p
-                className="mt-8 text-xl md:text-2xl text-gray-300/90 max-w-3xl mx-auto leading-relaxed"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                Transform your customer experience with{" "}
-                <span className="text-primary-400">AI-powered automation</span>,{" "}
-                <span className="text-secondary-400">real-time analytics</span>,
-                and{" "}
-                <span className="text-primary-400">seamless collaboration</span>
-                .
-              </motion.p>
-
-              {/* Enhanced Stats Section */}
-              <motion.div
-                className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
-                variants={{
-                  hidden: { opacity: 0 },
-                  show: {
-                    opacity: 1,
-                    transition: { staggerChildren: 0.2 },
-                  },
-                }}
-                initial="hidden"
-                animate="show"
-              >
-                <StatsCard
-                  value="50%"
-                  label="Faster Resolution"
-                  icon="⚡"
-                  gradient="from-primary-500/20 to-primary-500/10"
-                />
-                <StatsCard
-                  value="24/7"
-                  label="AI-Powered Support"
-                  icon="🤖"
-                  gradient="from-secondary-500/20 to-secondary-500/10"
-                />
-                <StatsCard
-                  value="99.9%"
-                  label="Satisfaction Rate"
-                  icon="⭐"
-                  gradient="from-primary-500/20 to-secondary-500/10"
-                />
-              </motion.div>
-
-              {/* Enhanced CTA Buttons */}
-              <motion.div
-                className="mt-12 flex flex-col md:flex-row justify-center gap-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                <GlowingButton
-                  primary
-                  onClick={() => console.log("Get Started clicked!")}
-                  className="group relative px-8 py-4 text-lg"
-                >
-                  Get Started Free
-                  <motion.span
-                    className="ml-2 inline-block"
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                  >
-                    →
-                  </motion.span>
-                </GlowingButton>
-
-                <GlowingButton
-                  secondary
-                  onClick={() => console.log("Book Demo clicked!")}
-                  className="group relative px-8 py-4 text-lg"
-                >
-                  Book a Demo
-                  <span className="ml-2 opacity-80">📅</span>
-                </GlowingButton>
-              </motion.div>
-            </motion.div>
-          </div>
+      <main className="relative">
+        {/* Hero Section */}
+        <motion.section style={{ opacity }} className="relative min-h-screen">
+          <HeroContent />
         </motion.section>
 
         {/* Powerful Features Section */}
@@ -533,7 +651,7 @@ const LandingPage: React.FC = () => {
       </main>
 
       {/* Enhanced Footer */}
-      <footer className="relative z-10 border-t border-white/10">
+      <footer className="relative z-10 border-t border-white/10 mt-20">
         <div className="absolute inset-0 backdrop-blur-xl bg-background-900/70" />
         <div className="relative max-w-7xl mx-auto px-4 py-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -656,24 +774,35 @@ const StatsCard: React.FC<{
   label: string;
   icon: string;
   gradient: string;
-}> = ({ value, label, icon, gradient }) => (
-  <motion.div
-    variants={fadeInUp}
-    className="relative p-6 rounded-2xl overflow-hidden group"
-  >
-    <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
-    <div className="absolute inset-[1px] bg-background-900 rounded-2xl" />
-    <div className="relative flex flex-col items-center">
-      <span className="text-4xl mb-2 transform group-hover:scale-110 transition-transform duration-300">
-        {icon}
-      </span>
-      <h3 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-secondary-400">
-        {value}
-      </h3>
-      <p className="text-gray-400 mt-2">{label}</p>
-    </div>
-  </motion.div>
-);
+}> = ({ value, label, icon, gradient }) => {
+  const [ref, inView] = useInView({ threshold: 0.2, triggerOnce: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      transition={{ duration: 0.6 }}
+      className="relative p-6 rounded-2xl overflow-hidden group hover:scale-105 transition-transform duration-300"
+    >
+      <div
+        className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}
+      />
+      <div className="absolute inset-[1px] bg-background-900/80 rounded-2xl backdrop-blur-sm" />
+      <div className="relative flex flex-col items-center">
+        <span className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">
+          {icon}
+        </span>
+        <h3 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-secondary-400">
+          {value}
+        </h3>
+        <p className="text-gray-400 mt-2 group-hover:text-gray-300 transition-colors duration-300">
+          {label}
+        </p>
+      </div>
+    </motion.div>
+  );
+};
 
 const FooterSection: React.FC<{
   title: string;
@@ -721,3 +850,15 @@ const containerVariants = {
 };
 
 export default LandingPage;
+
+// Helper component for text highlights
+const HighlightSpan: React.FC<{
+  children: React.ReactNode;
+  color: "primary" | "secondary";
+}> = ({ children, color }) => (
+  <span
+    className={`font-semibold ${color === "primary" ? "text-primary-400" : "text-secondary-400"}`}
+  >
+    {children}
+  </span>
+);
