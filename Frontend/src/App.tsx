@@ -7,6 +7,7 @@ import {
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
 import FeaturesPage from "./pages/FeaturesPage";
+import PricingPage from "./pages/PricingPage";
 import "./App.css";
 
 const router = createBrowserRouter(
@@ -23,13 +24,12 @@ const router = createBrowserRouter(
       path: "/features",
       element: <FeaturesPage />,
     },
-  ],
-  {
-    future: {
-      v7_startTransition: true,
-      v7_relativeSplatPath: true,
+    {
+      path: "/pricing",
+      element: <PricingPage />,
     },
-  }
+  ]
+  // ...
 );
 
 function App() {

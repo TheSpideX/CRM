@@ -29,8 +29,8 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({
   const cardVariants = {
     initial: {
       opacity: 0,
-      y: 20,
-      scale: 0.98,
+      y: 50,
+      scale: 0.95,
     },
     animate: {
       opacity: 1,
@@ -40,11 +40,10 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({
         type: "spring",
         stiffness: 100,
         damping: 20,
-        delay: index * 0.1,
+        duration: 0.8,
       },
     },
     hover: {
-      y: -8,
       scale: 1.02,
       transition: {
         type: "spring",
@@ -56,9 +55,15 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({
 
   // Improved icon animations
   const iconVariants = {
-    initial: {
+    initial: { scale: 0.8, rotate: -10 },
+    animate: {
       scale: 1,
       rotate: 0,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 20,
+      },
     },
     hover: {
       scale: 1.1,
@@ -66,7 +71,7 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({
       transition: {
         type: "spring",
         stiffness: 400,
-        damping: 15,
+        damping: 25,
       },
     },
   };
@@ -87,27 +92,33 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({
   // New detail item animations
   const detailVariants = {
     initial: { opacity: 0, x: -20 },
-    animate: (idx: number) => ({
+    animate: (i: number) => ({
       opacity: 1,
       x: 0,
       transition: {
-        duration: 0.3,
-        delay: index * 0.1 + idx * 0.1,
+        delay: i * 0.1,
+        duration: 0.5,
       },
     }),
+    hover: {
+      x: 10,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 25,
+      },
+    },
   };
 
   // New highlight animations
   const highlightVariants = {
     initial: { opacity: 0, scale: 0.8 },
-    animate: (idx: number) => ({
+    animate: (i: number) => ({
       opacity: 1,
       scale: 1,
       transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 25,
-        delay: index * 0.1 + idx * 0.1,
+        delay: i * 0.1,
+        duration: 0.5,
       },
     }),
     hover: {
