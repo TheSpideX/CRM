@@ -12,11 +12,13 @@ import { GlowingButton } from "../components/GlowingButton";
 import PricingBackgroundAnimation from "../components/PricingBackgroundAnimation";
 import { GradientBlob } from "../components/GradientBlob";
 import { ParallaxText } from "../components/ParallaxText";
+import { PricingCardHoverEffect } from "../components/PricingCardHoverEffect";
 import {
   StarIcon,
   RocketIcon,
   BuildingOfficeIcon,
 } from "../components/icons/CustomIcons";
+import { PricingGlowEffect } from "../components/PricingGlowEffect";
 
 interface PricingTier {
   name: string;
@@ -144,17 +146,73 @@ const faqs = [
   },
 ];
 
+const AnimatedNumber: React.FC<{ value: string }> = ({ value }) => {
+  const isNumber = !isNaN(parseInt(value.replace(/[^0-9]/g, '')));
+  
+  if (!isNumber) return <span>{value}</span>;
+  
+  return (
+    <motion.span
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, type: "spring" }}
+    >
+      {value}
+    </motion.span>
+  );
+};
+
+const FeatureHighlight: React.FC<{ feature: string }> = ({ feature }) => {
+  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
+  
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: -20 }}
+      animate={inView ? { opacity: 1, x: 0 } : {}}
+      transition={{ duration: 0.5 }}
+      className="flex items-center space-x-2"
+    >
+      <motion.div
+        className="w-1.5 h-1.5 rounded-full bg-violet-400"
+        animate={{ scale: [1, 1.5, 1] }}
+        transition={{ duration: 1, repeat: Infinity }}
+      />
+      <span className="text-gray-300">{feature}</span>
+    </motion.div>
+  );
+};
+
 const PricingCard: React.FC<{
   tier: PricingTier;
   isAnnual: boolean;
   index: number;
 }> = ({ tier, isAnnual, index }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
+  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
   const Icon = tier.icon;
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Add parallax effect on hover
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = (y - centerY) / 30;
+    const rotateY = (centerX - x) / 30;
+
+    cardRef.current.style.transform = 
+      `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  };
+
+  const handleMouseLeave = () => {
+    if (!cardRef.current) return;
+    cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+    setIsHovered(false);
+  };
 
   return (
     <motion.div
@@ -162,93 +220,104 @@ const PricingCard: React.FC<{
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
       className={`relative ${tier.highlighted ? "scale-105" : ""}`}
     >
-      <motion.div
-        className="absolute inset-0 rounded-3xl"
-        animate={{
-          background: isHovered
-            ? `linear-gradient(135deg, ${tier.gradient})`
-            : `linear-gradient(135deg, transparent, transparent)`,
-        }}
-        transition={{ duration: 0.3 }}
-        style={{ opacity: 0.1 }}
-      />
+      <div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        className="transition-all duration-200"
+      >
+        <PricingCardHoverEffect isHovered={isHovered} gradient={tier.gradient} />
 
-      <div className="relative p-8 rounded-3xl backdrop-blur-xl border border-white/10 bg-white/[0.02]">
-        {tier.highlighted && (
-          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+        <motion.div
+          className="relative p-8 rounded-3xl backdrop-blur-xl border border-white/10 bg-white/[0.02]"
+          animate={{
+            scale: isHovered ? 1.02 : 1,
+            transform: isHovered ? "translateY(-8px)" : "translateY(0px)",
+          }}
+          transition={{ duration: 0.2 }}
+        >
+          {tier.highlighted && (
             <motion.div
-              className="px-4 py-1 rounded-full text-sm font-medium bg-violet-500/20 text-violet-300 border border-violet-500/30"
+              className="absolute -top-4 left-1/2 transform -translate-x-1/2"
               initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              Most Popular
-            </motion.div>
-          </div>
-        )}
-
-        <div className="flex items-center space-x-3 mb-6">
-          <Icon className={`w-6 h-6 text-${tier.accentColor}-500`} />
-          <h3 className="text-2xl font-bold text-white">{tier.name}</h3>
-        </div>
-
-        <div className="mb-6">
-          <div className="flex items-baseline">
-            <span className="text-4xl font-bold">
-              {isAnnual ? tier.price.annual : tier.price.monthly}
-            </span>
-            <span className="text-gray-400 ml-2">
-              / {isAnnual ? "year" : "month"}
-            </span>
-          </div>
-          <p className="text-gray-400 mt-2">{tier.description}</p>
-        </div>
-
-        <ul className="space-y-4 mb-8">
-          {tier.features.map((feature, i) => (
-            <motion.li
-              key={i}
-              className="flex items-center text-gray-300"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 + i * 0.1 }}
-            >
-              <svg
-                className={`w-5 h-5 mr-3 ${
-                  tier.highlighted ? "text-violet-400" : "text-gray-400"
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <motion.div
+                className="px-4 py-1 rounded-full text-sm font-medium bg-violet-500/20 text-violet-300 border border-violet-500/30"
+                animate={{
+                  boxShadow: isHovered 
+                    ? "0 0 20px rgba(139, 92, 246, 0.3)" 
+                    : "0 0 0px rgba(139, 92, 246, 0)"
+                }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              {feature}
-            </motion.li>
-          ))}
-        </ul>
+                Most Popular
+              </motion.div>
+            </motion.div>
+          )}
 
-        <motion.button
-          className={`w-full py-3 px-6 rounded-xl font-medium transition-all
-            ${
-              tier.highlighted
-                ? "bg-violet-500 hover:bg-violet-600 text-white"
-                : "bg-white/5 hover:bg-white/10 text-gray-100 border border-white/10"
-            }`}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          {tier.cta}
-        </motion.button>
+          <motion.div
+            className="flex items-center space-x-3 mb-6"
+            animate={{
+              scale: isHovered ? 1.05 : 1,
+            }}
+            transition={{ duration: 0.2 }}
+          >
+            <Icon className={`w-6 h-6 text-${tier.accentColor}-500`} />
+            <h3 className="text-2xl font-bold text-white">{tier.name}</h3>
+          </motion.div>
+
+          <motion.div
+            className="mb-6"
+            animate={{
+              scale: isHovered ? 1.05 : 1,
+            }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex items-baseline justify-center">
+              <AnimatedNumber value={isAnnual ? tier.price.annual : tier.price.monthly} />
+              <span className="text-gray-400 ml-2">
+                / {isAnnual ? "year" : "month"}
+              </span>
+            </div>
+            <p className="text-gray-400 mt-2 text-center">{tier.description}</p>
+          </motion.div>
+
+          <ul className="space-y-4 mb-8">
+            {tier.features.map((feature, i) => (
+              <motion.li
+                key={i}
+                className="flex items-center text-gray-300"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + i * 0.1 }}
+              >
+                <FeatureHighlight feature={feature} />
+              </motion.li>
+            ))}
+          </ul>
+
+          <motion.button
+            className={`w-full py-3 px-6 rounded-xl font-medium transition-all
+              ${
+                tier.highlighted
+                  ? "bg-violet-500 hover:bg-violet-600 text-white"
+                  : "bg-white/5 hover:bg-white/10 text-gray-100 border border-white/10"
+              }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            animate={{
+              boxShadow: isHovered 
+                ? "0 0 30px rgba(139, 92, 246, 0.2)" 
+                : "0 0 0px rgba(139, 92, 246, 0)"
+            }}
+          >
+            {tier.cta}
+          </motion.button>
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -328,6 +397,7 @@ const PricingPage: React.FC = () => {
     <>
       <div className="fixed inset-0">
         <PricingBackgroundAnimation />
+        <PricingGlowEffect />
       </div>
 
       <div className="relative min-h-screen bg-transparent">
