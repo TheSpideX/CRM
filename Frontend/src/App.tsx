@@ -8,29 +8,31 @@ import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import PricingPage from "./pages/PricingPage";
+import ResourcesPage from "./pages/ResourcesPage";
 import "./App.css";
 
-const router = createBrowserRouter(
-  [
-    {
-      path: "/",
-      element: <LandingPage />,
-    },
-    {
-      path: "/auth",
-      element: <AuthPage />,
-    },
-    {
-      path: "/features",
-      element: <FeaturesPage />,
-    },
-    {
-      path: "/pricing",
-      element: <PricingPage />,
-    },
-  ]
-  // ...
-);
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <LandingPage />,
+  },
+  {
+    path: "/auth",
+    element: <AuthPage />,
+  },
+  {
+    path: "/features",
+    element: <FeaturesPage />,
+  },
+  {
+    path: "/pricing",
+    element: <PricingPage />,
+  },
+  {
+    path: "/resources",
+    element: <ResourcesPage />,
+  },
+]);
 
 function App() {
   return <RouterProvider router={router} />;

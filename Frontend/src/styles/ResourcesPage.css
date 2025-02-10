@@ -1,0 +1,3 @@
+.bg-radial-gradient {
+  background: radial-gradient(circle at center, transparent 0%, black 100%);
+}

@@ -27,7 +27,7 @@
   --primary-700: #0369a1;
   --primary-800: #075985;
   --primary-900: #0c4a6e;
-  
+
   --secondary-50: #faf5ff;
   --secondary-100: #f3e8ff;
   --secondary-200: #e9d5ff;
@@ -196,8 +196,8 @@ button {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Add these smooth transition utilities */
