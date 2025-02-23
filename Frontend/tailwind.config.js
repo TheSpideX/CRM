@@ -49,6 +49,7 @@ export default {
         "gradient-shift": "gradient-shift 15s ease infinite",
         "slow-spin": "slow-spin 25s linear infinite",
         "slow-spin-reverse": "slow-spin-reverse 30s linear infinite",
+        "pulse-glow": "pulse-glow 4s ease-in-out infinite",
       },
       keyframes: {
         "parallax-scroll": {
@@ -70,6 +71,10 @@ export default {
         "slow-spin-reverse": {
           "0%": { transform: "rotate(360deg)" },
           "100%": { transform: "rotate(0deg)" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: 0.4 },
+          "50%": { opacity: 0.8 },
         },
       },
       transitionTimingFunction: {

@@ -9,6 +9,7 @@ import AuthPage from "./pages/AuthPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import PricingPage from "./pages/PricingPage";
 import ResourcesPage from "./pages/ResourcesPage";
+import AboutPage from "./pages/AboutPage";
 import "./App.css";
 
 const router = createBrowserRouter([
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
   {
     path: "/resources",
     element: <ResourcesPage />,
+  },
+  {
+    path: "/about",
+    element: <AboutPage />,
   },
 ]);
 
