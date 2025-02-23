@@ -1,158 +1,97 @@
-import { useRef, useMemo } from "react";
-import { Points, PointMaterial } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
+import { useRef, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 
-interface ParticlesProps {
-  count?: number;
-  mouse: { x: number; y: number };
-}
+export const Particles = ({ mouse, count = 2000 }) => {
+  const mesh = useRef();
+  const light = useRef();
 
-export const Particles: React.FC<ParticlesProps> = ({
-  count = 4000, // Increased for richer visual effect
-  mouse,
-}) => {
-  const points = useRef<any>();
-  const rotationSpeed = useRef({ x: 0, y: 0 });
-  const hover = useRef({ x: 0, y: 0 });
-
-  // Create particles data
+  // Generate random particles
   const particles = useMemo(() => {
-    const positions = new Float32Array(count * 3);
-    const colors = new Float32Array(count * 3);
-    const scales = new Float32Array(count);
-
-    // Create multiple shells of particles with optimized distribution
-    const numberOfShells = 7; // Increased number of shells for more depth
-    const baseRadius = 15; // Increased base radius for larger effect
-    const radiusIncrement = 8; // Adjusted spacing between shells
-
+    const temp = [];
     for (let i = 0; i < count; i++) {
-      const shellIndex = Math.floor(i / (count / numberOfShells));
-      const shellRadius = baseRadius + shellIndex * radiusIncrement;
+      const time = Math.random() * 100;
+      const factor = Math.random() * 20 + 10;
+      const speed = Math.random() * 0.01;
+      const x = Math.random() * 2000 - 1000;
+      const y = Math.random() * 2000 - 1000;
+      const z = Math.random() * 2000 - 1000;
 
-      // Enhanced Fibonacci sphere distribution
-      const phi = Math.acos(1 - (2 * (i % (count / numberOfShells))) / (count / numberOfShells));
-      const theta = Math.PI * (1 + Math.sqrt(5)) * (i % (count / numberOfShells));
-
-      // Add subtle randomness to positions for more natural look
-      const randomOffset = Math.random() * 0.5;
-      positions[i * 3] = (shellRadius + randomOffset) * Math.sin(phi) * Math.cos(theta);
-      positions[i * 3 + 1] = (shellRadius + randomOffset) * Math.sin(phi) * Math.sin(theta);
-      positions[i * 3 + 2] = (shellRadius + randomOffset) * Math.cos(phi);
-
-      // Enhanced color distribution with more variety
-      const colorChoice = Math.random();
-      if (colorChoice > 0.995) {
-        // 0.5% super bright white stars
-        colors[i * 3] = 1;
-        colors[i * 3 + 1] = 1;
-        colors[i * 3 + 2] = 1;
-        scales[i] = 2.5; // Much larger for emphasis
-      } else if (colorChoice > 0.98) {
-        // 1.5% bright golden stars
-        colors[i * 3] = 1;
-        colors[i * 3 + 1] = 0.9;
-        colors[i * 3 + 2] = 0.7;
-        scales[i] = 1.8;
-      } else if (colorChoice > 0.95) {
-        // 3% bright blue-white stars
-        colors[i * 3] = 0.95;
-        colors[i * 3 + 1] = 0.97;
-        colors[i * 3 + 2] = 1;
-        scales[i] = 1.4;
-      } else if (colorChoice > 0.8) {
-        // 15% medium brightness cyan-tinted stars
-        colors[i * 3] = 0.8;
-        colors[i * 3 + 1] = 0.95;
-        colors[i * 3 + 2] = 1;
-        scales[i] = 1.0;
-      } else {
-        // 80% background stars with color variation
-        const intensity = 0.6 + Math.random() * 0.3;
-        const blueShift = Math.random() * 0.2; // Adds subtle color variation
-        colors[i * 3] = intensity * 0.7;
-        colors[i * 3 + 1] = intensity * (0.85 + blueShift);
-        colors[i * 3 + 2] = intensity * (0.95 + blueShift);
-        scales[i] = 0.6 + Math.random() * 0.4;
-      }
-
-      // Scale adjustment based on shell position
-      scales[i] *= 1 + shellIndex * 0.1;
+      temp.push({ time, factor, speed, x, y, z });
     }
-
-    return {
-      positions,
-      colors,
-      scales,
-    };
+    return temp;
   }, [count]);
 
-  useFrame((state) => {
-    if (!points.current) return;
+  // Create positions and colors
+  const [positions, colors] = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
 
+    particles.forEach((particle, i) => {
+      const i3 = i * 3;
+      positions[i3] = particle.x;
+      positions[i3 + 1] = particle.y;
+      positions[i3 + 2] = particle.z;
+
+      const color = new THREE.Color();
+      color.setHSL(particle.x / 1000 + 0.5, 0.75, 0.75);
+      colors[i3] = color.r;
+      colors[i3 + 1] = color.g;
+      colors[i3 + 2] = color.b;
+    });
+
+    return [positions, colors];
+  }, [particles, count]);
+
+  useFrame((state) => {
     const time = state.clock.getElapsedTime();
 
-    // Minimal rotation speeds
-    points.current.rotation.x += 0.00005; // Drastically reduced
-    points.current.rotation.y += 0.00005; // Drastically reduced
-    points.current.rotation.z += 0.00002; // Drastically reduced
+    particles.forEach((particle, i) => {
+      const i3 = i * 3;
+      mesh.current.geometry.attributes.position.array[i3] = 
+        particle.x + Math.sin(time * particle.speed + particle.factor) * 50;
+      mesh.current.geometry.attributes.position.array[i3 + 1] = 
+        particle.y + Math.cos(time * particle.speed + particle.factor) * 50;
+      mesh.current.geometry.attributes.position.array[i3 + 2] = 
+        particle.z + Math.cos(time * particle.speed + particle.factor) * 50;
+    });
 
-    // Minimal mouse influence
-    rotationSpeed.current.x = THREE.MathUtils.lerp(
-      rotationSpeed.current.x,
-      mouse.y * 0.0002, // Drastically reduced
-      0.005
-    );
-    rotationSpeed.current.y = THREE.MathUtils.lerp(
-      rotationSpeed.current.y,
-      mouse.x * 0.0002, // Drastically reduced
-      0.005
-    );
+    mesh.current.geometry.attributes.position.needsUpdate = true;
 
-    // Minimal floating motion
-    points.current.position.y = Math.sin(time * 0.1) * 0.3; // Reduced amplitude and frequency
-    points.current.position.x = Math.cos(time * 0.1) * 0.3;
-    points.current.position.z = Math.sin(time * 0.05) * 0.2;
-
-    // Enhanced breathing effect with varying intensity
-    const primaryBreathing = Math.sin(time * 0.3) * 0.03;
-    const secondaryBreathing = Math.sin(time * 0.7) * 0.02;
-    const breathingScale = 1 + primaryBreathing + secondaryBreathing;
-    points.current.scale.set(breathingScale, breathingScale, breathingScale);
+    // Update light position based on mouse
+    if (light.current) {
+      light.current.position.x = mouse.x * 100;
+      light.current.position.y = mouse.y * 100;
+    }
   });
 
   return (
-    <points ref={points}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particles.positions.length / 3}
-          array={particles.positions}
-          itemSize={3}
+    <group>
+      <pointLight ref={light} distance={200} intensity={2} color="white" />
+      <points ref={mesh}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={positions.length / 3}
+            array={positions}
+            itemSize={3}
+          />
+          <bufferAttribute
+            attach="attributes-color"
+            count={colors.length / 3}
+            array={colors}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={2}
+          vertexColors
+          blending={THREE.AdditiveBlending}
+          transparent
+          sizeAttenuation
+          depthWrite={false}
         />
-        <bufferAttribute
-          attach="attributes-color"
-          count={particles.colors.length / 3}
-          array={particles.colors}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-size"
-          count={particles.scales.length}
-          array={particles.scales}
-          itemSize={1}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.12}
-        sizeAttenuation={true}
-        vertexColors
-        transparent
-        opacity={0.8}
-        blending={THREE.AdditiveBlending}
-        depthWrite={false}
-      />
-    </points>
+      </points>
+    </group>
   );
 };

@@ -9,54 +9,161 @@ const RobotSilhouette: React.FC<{ isHovered: boolean }> = ({ isHovered }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Dynamic color patch behind robot */}
+      <motion.div
+        className="absolute inset-0 -z-10"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ 
+          scale: [0.8, 1, 0.8],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+        style={{
+          background: `
+            radial-gradient(circle at 50% 50%, 
+              rgba(124, 58, 237, 0.15) 0%,
+              rgba(124, 58, 237, 0.1) 30%,
+              transparent 70%
+            )
+          `,
+          filter: 'blur(20px)',
+          transform: 'translateY(20px) scale(1.2)',
+        }}
+      />
+
+      {/* Background glow effect */}
+      <motion.div
+        className="absolute inset-0"
+        initial={{ y: 0 }}
+        style={{
+          background: 'radial-gradient(circle at 70% 50%, rgba(124, 58, 237, 0.16414) 0%, transparent 70%)',
+          filter: 'blur(15px)',
+          willChange: 'transform',
+        }}
+        animate={{
+          y: isHovered ? -3 : 0,
+          scale: isHovered ? [1, 1.08, 1] : 1,
+          opacity: isHovered ? [0.4, 0.6, 0.4] : 0.4,
+        }}
+        transition={{ 
+          y: { duration: 1, repeat: Infinity, repeatType: "reverse" },
+          scale: { duration: 2, repeat: Infinity },
+          opacity: { duration: 2, repeat: Infinity }
+        }}
+      />
+
       <svg
         viewBox="0 0 200 300"
-        className="w-full h-full"
-        style={{ filter: 'drop-shadow(0 0 8px rgba(var(--primary-500), 0.3))' }}
+        className="w-full h-full relative z-10"
+        style={{ filter: 'drop-shadow(0 0 8px rgba(124, 58, 237, 0.3))' }}
       >
-        {/* Head */}
+        {/* Robot parts with enhanced animations */}
         <motion.path
           d="M80 40 L120 40 L130 60 L70 60 Z"
-          fill="rgba(var(--primary-500), 0.8)"
+          fill="rgba(124, 58, 237, 0.8)"
           initial={{ y: 0 }}
-          animate={{ y: isHovered ? -3 : 0 }}
-          transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
+          animate={{ 
+            y: isHovered ? [-3, 0, -3] : 0,
+            scale: isHovered ? [1, 1.05, 1] : 1
+          }}
+          transition={{ 
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
         />
         
-        {/* Antenna */}
+        {/* Antenna with enhanced animation */}
         <motion.path
           d="M100 30 L100 10"
-          stroke="rgba(var(--primary-500), 0.8)"
+          stroke="rgba(124, 58, 237, 0.8)"
           strokeWidth="2"
           initial={{ scaleY: 1 }}
-          animate={{ scaleY: isHovered ? 1.2 : 1 }}
-          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+          animate={{ 
+            scaleY: isHovered ? [1, 1.2, 1] : 1,
+            rotate: isHovered ? [-5, 5, -5] : 0
+          }}
+          transition={{ 
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          style={{ transformOrigin: 'bottom' }}
         />
         
-        {/* Eyes */}
+        {/* Eyes with pulsing effect */}
         <motion.circle
           cx="85"
           cy="50"
-          r="4"
-          fill="rgba(var(--primary-500), 1)"
-          initial={{ opacity: 0.5 }}
-          animate={{ opacity: isHovered ? 1 : 0.5 }}
-          transition={{ duration: 0.3, repeat: Infinity, repeatType: "reverse" }}
+          r="3"
+          fill="rgba(124, 58, 237, 0.8)"
+          animate={{ 
+            opacity: isHovered ? [0.6, 1, 0.6] : 0.8,
+            scale: isHovered ? [1, 1.2, 1] : 1
+          }}
+          transition={{ 
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
         />
         <motion.circle
           cx="115"
           cy="50"
-          r="4"
-          fill="rgba(var(--primary-500), 1)"
-          initial={{ opacity: 0.5 }}
-          animate={{ opacity: isHovered ? 1 : 0.5 }}
-          transition={{ duration: 0.3, repeat: Infinity, repeatType: "reverse" }}
+          r="3"
+          fill="rgba(124, 58, 237, 0.8)"
+          animate={{ 
+            opacity: isHovered ? [0.6, 1, 0.6] : 0.8,
+            scale: isHovered ? [1, 1.2, 1] : 1
+          }}
+          transition={{ 
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.2
+          }}
         />
+
+        {/* Add floating particles around the robot */}
+        {[...Array(6)].map((_, i) => (
+          <motion.circle
+            key={i}
+            r="1"
+            fill="rgba(124, 58, 237, 0.6)"
+            initial={{
+              cx: 100 + Math.cos(i * 60) * 30,
+              cy: 150 + Math.sin(i * 60) * 30,
+            }}
+            animate={{
+              cx: [
+                100 + Math.cos(i * 60) * 30,
+                100 + Math.cos((i * 60) + 180) * 20,
+                100 + Math.cos(i * 60) * 30
+              ],
+              cy: [
+                150 + Math.sin(i * 60) * 30,
+                150 + Math.sin((i * 60) + 180) * 20,
+                150 + Math.sin(i * 60) * 30
+              ],
+              opacity: [0.6, 1, 0.6]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.2
+            }}
+          />
+        ))}
 
         {/* Body */}
         <motion.path
           d="M70 60 L130 60 L140 200 L60 200 Z"
-          fill="rgba(var(--primary-500), 0.6)"
+          fill="rgba(124, 58, 237, 0.6)"
           initial={{ scaleY: 1 }}
           animate={{ scaleY: isHovered ? 1.02 : 1 }}
           transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
@@ -67,7 +174,7 @@ const RobotSilhouette: React.FC<{ isHovered: boolean }> = ({ isHovered }) => {
           cx="100"
           cy="100"
           r="12"
-          fill="rgba(var(--primary-500), 0.8)"
+          fill="rgba(124, 58, 237, 0.8)"
           initial={{ opacity: 0.5 }}
           animate={{ 
             opacity: isHovered ? [0.8, 0.2] : 0.5,
@@ -79,7 +186,7 @@ const RobotSilhouette: React.FC<{ isHovered: boolean }> = ({ isHovered }) => {
         {/* Arms */}
         <motion.path
           d="M60 80 L40 150 L45 180 L55 160 L60 120"
-          stroke="rgba(var(--primary-500), 0.8)"
+          stroke="rgba(124, 58, 237, 0.8)"
           strokeWidth="8"
           fill="none"
           initial={{ rotate: 0 }}
@@ -88,7 +195,7 @@ const RobotSilhouette: React.FC<{ isHovered: boolean }> = ({ isHovered }) => {
         />
         <motion.path
           d="M140 80 L160 150 L155 180 L145 160 L140 120"
-          stroke="rgba(var(--primary-500), 0.8)"
+          stroke="rgba(124, 58, 237, 0.8)"
           strokeWidth="8"
           fill="none"
           initial={{ rotate: 0 }}
@@ -99,7 +206,7 @@ const RobotSilhouette: React.FC<{ isHovered: boolean }> = ({ isHovered }) => {
         {/* Legs */}
         <motion.path
           d="M80 200 L70 250 L80 280"
-          stroke="rgba(var(--primary-500), 0.8)"
+          stroke="rgba(124, 58, 237, 0.8)"
           strokeWidth="12"
           fill="none"
           initial={{ x: 0 }}
@@ -108,7 +215,7 @@ const RobotSilhouette: React.FC<{ isHovered: boolean }> = ({ isHovered }) => {
         />
         <motion.path
           d="M120 200 L130 250 L120 280"
-          stroke="rgba(var(--primary-500), 0.8)"
+          stroke="rgba(124, 58, 237, 0.8)"
           strokeWidth="12"
           fill="none"
           initial={{ x: 0 }}
@@ -121,7 +228,7 @@ const RobotSilhouette: React.FC<{ isHovered: boolean }> = ({ isHovered }) => {
           <motion.path
             key={i}
             d={`M${70 + i * 20} 80 L${70 + i * 20} 180`}
-            stroke="rgba(var(--primary-500), 0.4)"
+            stroke="rgba(124, 58, 237, 0.4)"
             strokeWidth="1.5"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: isHovered ? 1 : 0 }}
@@ -134,7 +241,7 @@ const RobotSilhouette: React.FC<{ isHovered: boolean }> = ({ isHovered }) => {
       <motion.div
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(circle at 50% 50%, rgba(var(--primary-500), 0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.15) 0%, transparent 70%)',
           filter: 'blur(15px)',
         }}
         animate={{
@@ -171,4 +278,6 @@ const RobotSilhouette: React.FC<{ isHovered: boolean }> = ({ isHovered }) => {
 };
 
 export default RobotSilhouette;
+
+
 
