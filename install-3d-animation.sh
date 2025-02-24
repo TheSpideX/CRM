@@ -1,1 +1,0 @@
-npm install framer-motion@12.3.1 three @react-three/fiber @react-three/drei
