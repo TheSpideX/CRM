@@ -11,6 +11,8 @@ import PricingPage from "./pages/PricingPage";
 import ResourcesPage from "./pages/ResourcesPage";
 import AboutPage from "./pages/AboutPage";
 import "./App.css";
+import { CursorProvider } from './contexts/CursorContext';
+import { CustomCursor } from './components/ui/CustomCursor';
 
 const router = createBrowserRouter([
   {
@@ -40,7 +42,21 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <CursorProvider>
+      <div className="app">
+        {/* Hide default cursor */}
+        <style jsx global>{`
+          * {
+            cursor: none !important;
+          }
+        `}</style>
+        
+        <CustomCursor />
+        <RouterProvider router={router} />
+      </div>
+    </CursorProvider>
+  );
 }
 
 export default App;
